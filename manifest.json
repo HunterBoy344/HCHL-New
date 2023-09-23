@@ -1,6 +1,6 @@
 {
-    "name": "Hunter's Cached HTML Launcher",
-    "short_name": "HCHL",
+    "name": "HCHL (GitHub Edition)",
+    "short_name": "HCHL (GitHub Edition)",
     "start_url": ".",
     "display": "fullscreen",
     "background_color": "black",
