@@ -1,0 +1,13 @@
+{
+    "name": "Hunter's Cached HTML Launcher",
+    "short_name": "HCHL",
+    "start_url": ".",
+    "display": "fullscreen",
+    "background_color": "black",
+    "description": "Run local HTML without the restrictions of the file:// view!",
+    "icons": [{
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }]
+  }

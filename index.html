@@ -1,0 +1,793 @@
+<!--
+   Wii menu page
+   
+   by eggdesign
+   
+   Feel free to edit however you want! This page is pretty simple, but there are comments to help with editing.
+   
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HCHL</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <link rel="shortcut icon" href="{Favicon}" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="localforage.min.js"></script>
+        <style type="text/css">
+          body {
+            overflow-x: hidden;
+            overflow-y: hidden;
+          }
+          @font-face{
+            font-family: "Wii Font";
+            src: url("/system.woff");
+          }
+          *{
+            color:#2c3331;
+          }
+        </style>
+        <link rel="manifest" href="manifest.json">
+        <style>
+            body {
+                margin: 0;
+                background: #f8f8f8;
+                font-family: "Wii Font";
+            }
+            * {
+                box-sizing: border-box;
+            }
+            a {
+                text-decoration: none;
+                color: #222;
+            }
+            main ul.navigation {
+                display: flex;
+                width: 90%;
+                max-width: 1200px;
+                margin: 10vh auto;
+                padding: 1rem;
+                flex-wrap: wrap;
+                list-style-type: none;
+            }
+            main ul.navigation li {
+                position: relative;
+                overflow: hidden;
+                width: calc(25% - 0.8rem);
+                margin: 0.4rem;
+                aspect-ratio: 2 / 1;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                border: 2.4px solid #ccc;
+                border-radius: 1rem;
+                box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.02);
+                padding: var(--spacing);
+                background-image: repeating-radial-gradient(circle at 14% 30%, white, rgba(0, 0, 0, 0.12) 0.0008px);
+                color: rgba(0, 0, 0, 0.6);
+            }
+            main ul.navigation li:hover {;
+                  border: 2.4px solid #79c3e6;
+                  outline: 1px solid #79c3e6;
+              }
+            main ul.navigation li:before {
+                content: "";
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.02) 50%, rgba(0, 0, 0, 0.02)), linear-gradient(to top right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.12));
+                background-size: 100% 8px, cover;
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                z-index: 0;
+            }
+            .navigation li a {
+                position: relative;
+                z-index: 1;
+                display:flex;
+                flex-wrap:wrap;
+                align-items:center;
+                justify-content:center;
+                width:100%;
+                height:100%;
+            }
+            .content {
+                position: absolute;
+                width: 100vw;
+                display: flex;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                z-index: 2;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.4);
+                opacity: 0;
+                visibility: hidden;
+            }
+            .content .container {
+                width: 500px;
+                background: white;
+                text-align: center;
+                border-radius: 1rem;
+                box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.2);
+                padding: 1rem;
+            }
+            .content:target {
+                visibility: visible;
+                pointer-events: auto;
+                opacity: 1;
+            }
+            .cancel {
+                transition: transform .1s;
+                border-radius: 1.4rem;
+                box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.08), 0 0 0 4px white, 2px 2px 10px rgba(0, 0, 0, 0.2), 0 0 4px 2px rgba(0, 0, 0, 0.4);
+                display: inline-block;
+                padding: 0.4rem 1rem;
+                text-decoration: none;
+                text-align: center;
+                color: #2c3331;
+                width: 80%;
+                background: linear-gradient(to bottom, white 70%, rgba(0, 0, 0, 0.2));
+            }
+            .cancel:hover {
+              transform: scale(1.1);
+            }
+            .button {
+                transition: transform .1s;
+                width: 50%;
+                margin: 1rem 0;
+                text-align: center;
+                border-radius: 2rem;
+                display: inline-block;
+                padding: 1rem;
+                position: relative;
+                overflow: hidden;
+                z-index: 1;
+                text-decoration: none;
+                color: #222;
+                box-shadow: 2px 2px 10px 2px rgba(0, 0, 0, 0.08);
+                border: 2.6px solid skyblue;
+                background: #dae3e5;
+            }
+            .button:hover {
+              transform: scale(1.1);
+            }
+            .button:before {
+                content: "";
+                width: 94%;
+                left: 0;
+                top: 0px;
+                border-radius: 2rem;
+                height: 40%;
+                background: #ebecee;
+                position: absolute;
+            }
+            .button:after {
+                content: "";
+                width: 54%;
+                left: 0;
+                top: 0px;
+                border-radius: 2rem;
+                height: 100%;
+                background: #ebecee;
+                position: absolute;
+            }
+            .corner {
+                display: block;
+                position: absolute;
+                width: 100%;
+                left: 0;
+                top: 40%;
+                z-index: 1;
+                border-radius: 2rem;
+                height: 100%;
+                background: #dae3e5;
+            }
+            .text {
+                position: relative;
+                z-index: 1;
+            }
+            .content.full {
+                background: black;
+            }
+            .content.full .container {
+                width: 90vw;
+                display: flex;
+                border-radius: 3rem;
+                overflow: hidden;
+                position: relative;
+                flex-wrap: wrap;
+                align-items: space-between;
+                padding: 0;
+                height: 90vh;
+            }
+            .full .bottom {
+                width: 100%;
+                align-self: flex-end;
+                padding: 1rem;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                max-height: 200px;
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.02) 50%, rgba(0, 0, 0, 0.02)), linear-gradient(to top right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.12));
+                background-size: 100% 4px, cover;
+                border-top: 2.4px solid #aaa;
+            }
+            .full header {
+                background: skyblue;
+                padding: 2rem;
+                position: absolute;
+                width: 100%;
+            }
+            .wii {
+                padding: 2rem;
+                margin-top: 100px;
+            }
+            .full header:before {
+                content: "";
+                background: white;
+                width: 70%;
+                top: 20px;
+                left: -1rem;
+                height: 40px;
+                padding: 1rem;
+                border-radius: 2rem;
+                position: absolute;
+            }
+            .full header:after {
+                background-image: radial-gradient(circle at 100% 0, transparent 0%, transparent 38px, white 40px);
+                content: "";
+                width: 40px;
+                position: absolute;
+                height: 34px;
+                left: 0;
+                margin-top: -2px;
+                margin-left: calc(70% + 10px);
+            }
+            .bottom .button {
+                max-width: 40%;
+            }
+            li:empty:after {
+                width: 100%;
+                height: 100%;
+                font-size: 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0.12;
+                content: "Wii";
+                font-weight: bold;
+            }
+            li img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                z-index: 0;
+                object-position: center;
+            }
+            .outline {
+                fill: black;
+            }
+            footer {
+                position: fixed;
+                bottom: 0px;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                width: 100%;
+                height: 200px;
+                filter: drop-shadow(3px 0px 0px skyblue) drop-shadow(-3px 0px 0px skyblue) drop-shadow(0px -3px 0px skyblue);
+            }
+            .c {
+                width: 33%;
+                height: 200px;
+                border-radius: 3rem;
+                background: #bbb;
+                left: -5%;
+                position: absolute;
+            }
+            .c:nth-of-type(2) {
+                left: auto;
+                right: -5%;
+            }
+            .c:after {
+                background-image: radial-gradient(circle at 100% 0, transparent 0%, transparent 100px, #bbb 100px);
+                content: "";
+                width: 100px;
+                position: absolute;
+                height: 80px;
+                transform: scale(0.8);
+                right: -84.2px;
+                margin-top: 8px;
+            }
+            .c:nth-of-type(2):after {
+                right: auto;
+                left: -84.2px;
+                transform: scale(0.8) scaleX(-1);
+            }
+            .m {
+                width: 100%;
+                height: 60%;
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.02) 50%, rgba(0, 0, 0, 0.02)), linear-gradient(to bottom, #bbb, #f5f5f5);
+                position: absolute;
+                top: 40%;
+                background-size: 100% 8px, cover;
+            }
+            .bottom-text {
+                position: absolute;
+                width: 250px;
+                bottom: 1rem;
+                z-index: 1;
+                padding: 1rem;
+                text-align: center;
+                left: 50%;
+                margin-left: -125px;
+            }
+            .button-cont {
+                position: absolute;
+                width: 200px;
+                left: 0;
+                z-index: 1;
+                margin-left: -50px;
+                padding: 1rem;
+                padding-left: 200px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 6rem;
+                display: flex;
+                box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.08);
+                align-items: center;
+            }
+            .button-cont.right-side {
+                left: auto;
+                right: -40px;
+                padding-left: 1rem;
+                padding-right: 200px;
+            }
+            .button-cont.right-side .button {
+                margin-left: 1rem;
+            }
+            .button-cont .button {
+                transition: transform .1s;
+                min-width: 80px;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                scale:1.2;
+                align-items: center;
+                border-radius: 100%;
+                height: 70px;
+                border-width: 4px;
+                margin-left: -100px;
+                box-shadow: 4px 4px rgba(0, 0, 0, 0.08);
+              .button-cont .button:hover {
+                transform: scale(1.3);
+              }
+        </style>
+        <style>
+            html {
+              cursor: default;
+              cursor: url('cursor.png'), auto;
+            }
+            a {
+              cursor: default;
+              cursor: url('cursor.png'), auto;
+            }
+            button {
+              cursor: default;
+              cursor: url('cursor.png'), auto;
+            }
+            .trail { /* className for the trail elements */
+              position: absolute;
+              height: 6px; width: 6px;
+              border-radius: 3px;
+              background: teal;
+            }
+        </style>
+    </head>
+    <body>
+        <main id="main">
+            <ul id="channelmenu" class="navigation">
+                <li>
+                    <!-- make sure this link matches the ID of the popup you want to display -->
+                    <a href="#container-1">
+                        <img src="installer_channel.png" alt="empty CD wii menu placeholder" />
+                    </a>
+                </li>
+            </ul>
+          
+            <!-- make sure this id matches the value of the "button" that will open this popup  -->
+            <div id="container-1" class="content full">
+                <div class="container">
+                    <header></header>
+                    <div class="wii">
+                        Installer
+                    </div>
+                    <div class="bottom">
+                        <a href="#" class="button">
+                            <span class="corner"></span>
+                            <!-- put the text content inside <span class="text"> -->
+                            <span class="text">Back</span>
+                        </a>
+                        <a href="old.html" class="button">
+                            <span class="corner"></span>
+                            <!-- put the text content inside <span class="text"> -->
+                            <span class="text">Start</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+          <!-- end container -->
+          <!-- start container 2 -->
+            <div id="container-2" class="content full">
+                <div class="container">
+                    <header></header>
+                    <div class="wii">
+                        Wii menu content
+                    </div>
+                    <div class="bottom">
+                        <a href="#" class="button">
+                            <span class="corner"></span>
+                            <span class="text">Back</span>
+                        </a>
+                        <a href="" class="button">
+                            <span class="corner"></span>
+                            <span class="text">???</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+          
+          <!-- end container 2 -->
+            <!-- if you only want a simple popup, only include class="content" instead of class="content full" like the containers above -->
+            <div id="container-3" class="content">
+                <div class="container">
+                    <!-- wii menu style button that you can copy/paste anywhere:
+                  <a href="" class="button"><span class="corner"></span>
+                      <span class="text">Test 2</span>
+                  </a>
+                  -->
+                    <p>Popup content</p>
+                    <a href="#" class="cancel">Cancel</a>
+                </div>
+            </div>
+            <div id="options" class="content">
+                <div class="container">
+                    <!-- wii menu style button that you can copy/paste anywhere:
+                  <a href="" class="button"><span class="corner"></span>
+                      <span class="text">Test 2</span>
+                  </a>
+                  -->
+                    <a href="#resetwarning" class="cancel">Reset</button>
+                    <a href="#updatewarning" class="cancel">Update</button>
+                    <a href="#" class="cancel">Cancel</a>
+                </div>
+            </div>
+            <div id="resetwarning" class="content">
+                <div class="container">
+                    <!-- wii menu style button that you can copy/paste anywhere:
+                  <a href="" class="button"><span class="corner"></span>
+                      <span class="text">Test 2</span>
+                  </a>
+                  -->
+                    <p>WARNING! This will erase all of your programs from cache memory! Your saved data will not be erased, but you will have to add your programs back.</p>
+                    <a href="#" class="cancel">Cancel</a>
+                    <a onclick="clearCache()" class="cancel">Reset</a>
+                </div>
+            </div>
+            <div id="updatewarning" class="content">
+                <div class="container">
+                    <!-- wii menu style button that you can copy/paste anywhere:
+                  <a href="" class="button"><span class="corner"></span>
+                      <span class="text">Test 2</span>
+                  </a>
+                  -->
+                    <p>WARNING! This will update your launcher to the latest version. Doing this offline or if the site is blocked may make the launcher temporarily or permanently inaccessible!</p>
+                    <a href="#" class="cancel">Cancel</a>
+                    <a onclick="updateLauncher()" class="cancel">Update</a>
+                </div>
+            </div>
+          <!-- end container 3 -->
+        </main>
+        
+        <div class="bottom-text">
+            Hunter's Cached HTML Launcher
+        </div>
+        <footer>
+            <div class="button-cont">
+                <a class="button" href="#options">
+                    <span class="corner"></span>
+                    <span class="text">Options</span>
+                </a>
+            </div>
+            <div class="c"></div>
+            <div class="c"></div>
+            <div class="m"></div>
+            <div class="button-cont right-side">
+                <a class="button" onclick="muteUnmuteAudio()">
+                    <span class="corner"></span>
+                    <span class="text">Mute</span>
+                </a>
+            </div>
+        </footer>
+      <script>
+        const audioObj = new Audio("bgm.mp3");
+        window.addEventListener('click', () => {
+           audioObj.play()
+        }, { once: true })
+        let SWRegistration
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(function() {
+          return navigator.serviceWorker.ready;
+        }).then(function(reg) {
+            console.log('Service Worker is ready', reg);
+            SWRegistration = reg
+            reg.active.postMessage("Test message sent immediately after creation",);
+            loadHTML("pwa-assets")
+        });
+      }
+        document.addEventListener("DOMContentLoaded", event => {
+          let launchURL
+          let channelURL="empty_channel.png"
+          // we can move only if we are not in a browser's tab
+          isBrowser = matchMedia("(display-mode: browser)").matches;
+          if (!isBrowser && window.innerHeight != screen.height) {
+            window.resizeTo(800, 600);
+          }
+          //clearCache();
+          
+            caches.keys().then(function(names) {
+              for (let name of names) {
+                console.log(name)
+                if (name !== "pwa-assets") {
+                  console.log("g")
+                  //queryCache(name)
+                  getCachedUrls(name).then((d) => {
+                    if (d.includes(`${window.location.href}index.html`)) {
+                      console.log("WOW")
+                      launchURL = "index.html"
+                    }
+                    if (d.includes(`${window.location.href.replace( "/#", "/" )}hchl_channel.png`) || d.includes(`${window.location.href.replace( "/#", "/" )}hchl_channel.gif`)) {
+                      console.log("PERFECT")
+                      localforage.getItem("hchl_"+name).then(function(value) {
+                          // This code runs once the value has been loaded
+                          // from the offline store.
+                          channelURL = value
+                          document.getElementById("channelmenu").innerHTML+=`<li><!-- make sure this link matches the ID of the popup you want to display --><a href="#${name}"><img src="${channelURL}" alt="empty CD wii menu placeholder" /></a></li>`
+                      document.getElementById("main").innerHTML+=`<div id="${name}" class="content full">
+                    <div class="container">
+                        <header></header>
+                        <div class="wii">
+                            ${name}
+                        </div>
+                        <div class="bottom">
+                            <a href="#" class="button">
+                                <span class="corner"></span>
+                                <span class="text">Back</span>
+                            </a>
+                            <a onclick='loadHTML("${name}")' class="button">
+                                <span class="corner"></span>
+                                <span class="text">Start</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>`
+                      channelURL="https://64.media.tumblr.com/57cf461a1819e5f240894118d1d0c568/d662040e3a2b8722-26/s400x600/c04c16872971599bb3c749bfa29c7d561c736247.pnj"
+                      }).catch(function(err) {
+                          // This code runs if there were any errors
+                          console.log(err);
+                      });
+                      //channelURL = localforage.getItem("hchl_"+name)
+                    } else {
+                      channelURL="empty_channel.png"
+                      document.getElementById("channelmenu").innerHTML+=`<li><!-- make sure this link matches the ID of the popup you want to display --><a href="#${name}"><img src="${channelURL}" alt="empty CD wii menu placeholder" /></a></li>`
+                      document.getElementById("main").innerHTML+=`<div id="${name}" class="content full">
+                    <div class="container">
+                        <header></header>
+                        <div class="wii">
+                            ${name}
+                        </div>
+                        <div class="bottom">
+                            <a href="#" class="button">
+                                <span class="corner"></span>
+                                <span class="text">Back</span>
+                            </a>
+                            <a onclick='loadHTML("${name}")' class="button">
+                                <span class="corner"></span>
+                                <span class="text">Start</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>`
+                    }
+                  })
+                }
+              }
+            });
+        });
+        async function clearCache() {
+          caches.keys().then(function(names) {
+            for (let name of names) {
+              if (name !== "pwa-assets")
+              caches.delete(name);
+              localforage.iterate(function (value, key) {
+                if (key.startsWith("hchl_")) {
+                  localforage.removeItem(key)
+                }
+              })
+            }
+          });
+          console.log("Caches cleared.")
+          window.location.href="/"
+        }
+        
+        async function setLaunch() {
+          let launchURL
+          caches.keys().then(function(names) {
+              for (let name of names) {
+                console.log(name)
+                if (name !== "pwa-assets") {
+                  console.log("g")
+                  caches.open(name).then((cache) => {
+                    cache.keys().then((keys) => {
+                      for (let i = 0; i < keys.length; i++) {
+                      //keys.forEach((request, index, array) => {
+                        if (keys[i].url == `${window.location.href}index.html`) {
+                          console.log("index.html")
+                          return "index.html"
+                        } else if (!launchURL) {
+                          
+                        }
+                      };
+                    });
+                  });
+                }
+              }
+            });
+        }
+
+        var isExistInCache = function(request){
+          return caches.open(this.cacheName)
+            .then(function(cache) {
+              return cache.match(request)
+                .then(function(response) {
+                  return !!response; // or `return response ? true : false`, or similar.
+                });
+            });
+        }
+        function queryCache(cacheName){
+            var url = [];
+            caches.open(cacheName).then(function (cache){
+                cache.keys().then(function(keys){
+                    return Promise.all(
+                            keys.map(function(k){url.push(k.url); return k.url} )
+                        )
+                }).then(function(u){ cacheList(url);})
+            })
+        }
+        
+        function cacheList(Items)
+        {   for(var i = 0; i < Items.length; i++){
+                console.log('Items: '+Items[i]);
+            }
+        }
+
+        async function getCachedUrls(cacheName, cb) {
+          const urls = (await (await caches.open(cacheName)).keys()).map(i => i.url)
+          return (cb) ? cb(urls) : urls 
+        }
+        
+        async function updateLauncher() {
+          caches.delete("pwa-assets");
+          SWRegistration.unregister()
+          window.location.href="/"
+        }
+        
+        async function loadHTML(cachename) {
+          SWRegistration.active.postMessage({
+            "type": "cachechange",
+            "cachename": cachename,
+          });
+        }
+
+        function muteUnmuteAudio() {
+          if (audioObj.muted === false) {
+            audioObj.muted = true
+          } else {
+            audioObj.muted = false
+          }
+        }
+
+        function fadeTo(element, toValue = 0, duration = 200) {
+            // Store our element's current opacity (or default to 1 if null)
+            const fromValue = parseFloat(element.style.opacity) || 1;
+        
+            // Mark the start time (in ms). We use this to calculate a ratio
+            // over time that applied to our supplied duration argument
+            const startTime = Date.now();
+        
+            // Determines time (ms) between each frame. Sometimes you may not
+            // want a full 60 fps for performance reasons or aesthetic 
+            const framerate = 1000 / 60; // 60fps
+            
+            // Store reference to interval (number) so we can clear it later
+            let interval = setInterval(() => {
+                const currentTime = Date.now();
+        
+                // This creates a normalized number between now vs when we
+                // started and how far into our desired duration it goes
+                const timeDiff = (currentTime - startTime) / duration;
+        
+                // Interpolate our values using the ratio from above
+                const value = fromValue - (fromValue - toValue) * timeDiff;
+                
+                // If our ratio is >= 1, then we're done.. so stop processing
+                if (timeDiff >= 1) {
+                    clearInterval(interval);
+                    interval = 0;
+                }
+                
+                // Apply visual. Style attributes are strings.
+                element.style.opacity = value.toString();
+            }, framerate)
+        }
+      </script>
+      <script language="JavaScript1.2">
+<!--
+
+/*
+Submitted by Marcin Wojtowicz [one_spook@hotmail.com] 
+Featured on JavaScript Kit (http://javascriptkit.com)
+Modified by JK to be IE7+/ Firefox compatible
+For this and over 400+ free scripts, visit http://javascriptkit.com
+*/
+
+var trailLength = 6 // The length of trail (8 by default; put more for longer "tail")
+var path = "cursortrail.png" // URL of your image
+
+var standardbody=(document.compatMode=="CSS1Compat")? document.documentElement : document.body //create reference to common "body" across doctypes
+var i,d = 0
+
+function initTrail() { // prepares the script
+	images = new Array() // prepare the image array
+	for (i = 0; i < parseInt(trailLength); i++) {
+		images[i] = new Image()
+		images[i].src = path
+	}
+	storage = new Array() // prepare the storage for the coordinates
+	for (i = 0; i < images.length*3; i++) {
+		storage[i] = 0
+	}
+	for (i = 0; i < images.length; i++) { // make divs for IE and layers for Navigator
+		document.write('<div id="obj' + i + '" style="position: absolute; z-Index: 100; height: 0; width: 0; pointer-events: none;"><img src="' + images[i].src + '"></div>')
+	}
+	trail()
+}
+function trail() { // trailing function
+	for (i = 0; i < images.length; i++) { // for every div/layer
+		document.getElementById("obj" + i).style.top = storage[d]-10+'px' // the Y-coordinate
+		document.getElementById("obj" + i).style.left = + storage[d+1]-10+'px' // the X-coordinate
+		d = d+2
+	}
+	for (i = storage.length; i >= 2; i--) { // save the coordinate for the div/layer that's behind
+		storage[i] = storage[i-2]
+	}
+	d = 0 // reset for future use
+	var timer = setTimeout("trail()",10) // call recursively 
+}
+function processEvent(e) { // catches and processes the mousemove event 
+	if (window.event) { // for IE
+		storage[0] = window.event.y+standardbody.scrollTop+10
+		storage[1] = window.event.x+standardbody.scrollLeft+10
+	} else {
+		storage[0] = e.pageY+12
+		storage[1] = e.pageX+12
+	}
+}
+
+	initTrail() 
+	document.onmousemove = processEvent // start capturing
+
+//-->
+</script>
+    </body>
+</html>

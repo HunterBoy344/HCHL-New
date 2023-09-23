@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <title>HCHL</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <script src="localforage.min.js"></script>
+</head>
+
+<body>
+  Hunter's Cached HTML Launcher<br>
+  Important info: There is no longer a dropdown menu. Your application's main HTML file must be named "index.html"<br>
+  <button onclick='window.location.href="/"'>Back to menu</button>
+  <button id="fileupload" onclick="getDir()">Select local directory</button>
+  <br>
+  <code id="finished" style="display: none">Data loaded! You can now return to the menu.</code>
+  <script>
+    
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(function() {
+          return navigator.serviceWorker.ready;
+      }).then(function(reg) {
+            console.log('Service Worker is ready', reg);
+          });
+    }
+
+    document.addEventListener("DOMContentLoaded", event => {
+      // we can move only if we are not in a browser's tab
+      isBrowser = matchMedia("(display-mode: browser)").matches;
+      if (!isBrowser && window.innerHeight != screen.height) {
+        window.resizeTo(800, 600);
+      }
+      //clearCache();
+    });
+    
+    var filenameInput = document.getElementById("filename");
+    var mainDirHandle
+/*    document.getElementById("fileupload").onchange = function() {
+      let input = this.files[0];
+      if (input) {
+        var reader = new FileReader();
+        reader.readAsText(input, "UTF-8");
+        reader.onload = function (evt) {
+            document.open();
+            document.write(evt.target.result);
+            document.close();
+        }
+        reader.onerror = function (evt) {
+            document.open();
+            document.write('error reading file');
+            document.close();
+        }
+      }
+    }*/
+    async function getDir() {
+      clearCache()
+      //removeOptions(filenameInput)
+      mainDirHandle = await window.showDirectoryPicker()
+      putFilesFromHandle(mainDirHandle,"/")
+      // run code for dirHandle
+      /*for await(let handle of dirHandle.values()){
+        let fileData = await handle.getFile();
+        console.log('handle',handle);
+        console.log(fileData)
+        try {
+          navigator.serviceWorker.controller.postMessage(fileData);
+          if (fileData.name.endsWith(".html")) {
+            filenameInput.add(new Option(fileData.name));
+          }
+        } catch (error) {
+          alert("Try again after the page refreshes.")
+          location.reload()
+          break
+        }
+      }*/
+    }
+    async function clearCache() {
+      if ('serviceWorker' in navigator) {
+        caches.delete('user-cache')
+      }
+    }
+    async function clearCacheAlert() {
+      if ('serviceWorker' in navigator) {
+        caches.delete('user-cache')
+        location.reload()
+      }
+    }
+    async function removeOptions(selectElement) {
+      var i, L = selectElement.options.length - 1;
+      for(i = L; i >= 0; i--) {
+        selectElement.remove(i);
+      }
+    }
+
+    async function loadHTML() {
+      let value = mainDirHandle.name
+      let HTMLToLoad = filenameInput.options[filenameInput.selectedIndex].text;
+      fetch(HTMLToLoad)
+        .then(response => response.text())
+        .then((response) => {
+          document.open()
+          document.write(response)
+          document.close()
+      })
+      .catch(err => console.log(err))
+    }
+    
+    /*async function* getFilesRecursively(entry) {
+      if (entry.kind === "file") {
+        const file = await entry.getFile();
+          if (file !== null) {
+            file.relativePath = getRelativePath(entry);
+            yield file;
+          }
+      } else if (entry.kind === "directory") {
+        for await (const handle of entry.values()) {
+          yield* getFilesRecursively(handle);
+        }
+      }
+    }*/
+
+    async function putFilesFromHandle(dirHandle,path) {
+      let cache_name = mainDirHandle.name
+      for await(let handle of dirHandle.values()){
+        if (handle.kind === "file") {
+          let fileData = await handle.getFile();
+          let response = new Response(fileData)
+          if (fileData.name === "hchl_channel.png" || fileData.name === "hchl_channel.gif") {
+            storeChannel("hchl_"+cache_name,fileData)
+          }
+          caches.open(cache_name).then((cache) => {
+            cache
+              .put(path+fileData.name,response)
+              .then(() => console.log("Data added to cache."))
+              .catch((error) => console.error("Error adding data to cache:", error));
+          });
+        } else if (handle.kind === "directory") {
+          putFilesFromHandle(handle,path+handle.name+"/")
+        }
+      }
+    }
+
+    function storeChannel(key,file) {
+      var reader = new FileReader();
+      reader.onloadend = function() {
+        localforage.setItem(key, reader.result)
+      }
+      reader.readAsDataURL(file);
+    }
+
+
+
+    
+  </script>
+
+  <!--
+  This script places a badge on your repl's full-browser view back to your repl's cover
+  page. Try various colors for the theme: dark, light, red, orange, yellow, lime, green,
+  teal, blue, blurple, magenta, pink!
+  -->
+</body>
+
+</html>
