@@ -65,11 +65,11 @@ addEventListener("message", (event) => {
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.open(current_cache).then(function(cache) {
-      return cache.match(event.request).then(function (response) {
+      return cache.match(event.request, {'ignoreSearch': true}).then(function (response) {
         if (response !== undefined) {
           return response;
         } else {
-          return caches.match(event.request).then((response) => {
+          return caches.match(event.request, {'ignoreSearch': true}).then((response) => {
             // caches.match() always resolves
             // but in case of success response will have value
             if (response !== undefined) {
