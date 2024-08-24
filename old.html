@@ -63,7 +63,7 @@
       //removeOptions(filenameInput)
       mainDirHandle = await window.showDirectoryPicker()
       zipFile = document.getElementById("zipupload").files[0]
-      putFilesFromZip(zipFile)
+      putFilesFromHandle(zipFile)
       // run code for dirHandle
       /*for await(let handle of dirHandle.values()){
         let fileData = await handle.getFile();
@@ -85,7 +85,7 @@
     async function getZip() {
       //clearCache()
       //removeOptions(filenameInput)
-      putFilesFromHandle(mainDirHandle,"/")
+      putFilesFromZip(mainDirHandle,"/")
       // run code for dirHandle
       /*for await(let handle of dirHandle.values()){
         let fileData = await handle.getFile();
