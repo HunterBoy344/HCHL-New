@@ -16,7 +16,7 @@
   Important info: There is no longer a dropdown menu. Your application's main HTML file must be named "index.html"<br>
   <button onclick='window.location.href="/"'>Back to menu</button>
   <button id="fileupload" onclick="getDir()">Select local directory</button>
-  <input id="zipupload" type="file" onchange="getZip()">Select zip file</input>
+  <input id="zipupload" type="file" onchange="getZip()"></input>
   <br>
   <code id="finished" style="display: none">Data loaded! You can now return to the menu.</code>
   <script>
@@ -63,7 +63,7 @@
       //removeOptions(filenameInput)
       mainDirHandle = await window.showDirectoryPicker()
       zipFile = document.getElementById("zipupload").files[0]
-      putFilesFromHandle(zipFile)
+      putFilesFromZip(zipFile)
       // run code for dirHandle
       /*for await(let handle of dirHandle.values()){
         let fileData = await handle.getFile();
