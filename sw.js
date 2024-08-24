@@ -10,7 +10,8 @@ let filesToCache = [
     "/system.woff",
     "/localforage.min.js",
     "/empty_channel.png",
-    "/installer_channel.png"
+    "/installer_channel.png",
+    "/jszip.min.js"
 ];
 caches.open("pwa-assets")
 .then(cache => {
