@@ -527,6 +527,7 @@
       }
         navigator.serviceWorker.addEventListener('message', function(event) {
           if (event.data === "reload the damn page") {
+		  audioObj.play()
 		  fetch("index.html")
         .then(response => response.text())
         .then((response) => {
