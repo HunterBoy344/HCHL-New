@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <script src="localforage.min.js"></script>
+  <script src="jszip.min.js"></script>
 </head>
 
 <body>
@@ -15,6 +16,7 @@
   Important info: There is no longer a dropdown menu. Your application's main HTML file must be named "index.html"<br>
   <button onclick='window.location.href="/"'>Back to menu</button>
   <button id="fileupload" onclick="getDir()">Select local directory</button>
+  <input id="zipupload" type="file" onchange="getZip()">Select zip file</input>
   <br>
   <code id="finished" style="display: none">Data loaded! You can now return to the menu.</code>
   <script>
@@ -38,6 +40,7 @@
     
     var filenameInput = document.getElementById("filename");
     var mainDirHandle
+    var zipFile
 /*    document.getElementById("fileupload").onchange = function() {
       let input = this.files[0];
       if (input) {
@@ -59,6 +62,29 @@
       clearCache()
       //removeOptions(filenameInput)
       mainDirHandle = await window.showDirectoryPicker()
+      zipFile = document.getElementById("zipupload").files[0]
+      putFilesFromHandle(zipFile)
+      // run code for dirHandle
+      /*for await(let handle of dirHandle.values()){
+        let fileData = await handle.getFile();
+        console.log('handle',handle);
+        console.log(fileData)
+        try {
+          navigator.serviceWorker.controller.postMessage(fileData);
+          if (fileData.name.endsWith(".html")) {
+            filenameInput.add(new Option(fileData.name));
+          }
+        } catch (error) {
+          alert("Try again after the page refreshes.")
+          location.reload()
+          break
+        }
+      }*/
+    }
+
+    async function getZip() {
+      //clearCache()
+      //removeOptions(filenameInput)
       putFilesFromHandle(mainDirHandle,"/")
       // run code for dirHandle
       /*for await(let handle of dirHandle.values()){
@@ -77,6 +103,7 @@
         }
       }*/
     }
+    
     async function clearCache() {
       if ('serviceWorker' in navigator) {
         caches.delete('user-cache')
@@ -141,6 +168,42 @@
           putFilesFromHandle(handle,path+handle.name+"/")
         }
       }
+    }
+
+    async function putFilesFromZip(fileObject) {
+            let cache_name = fileObject.name
+            //let fileObject = await file.getFile();
+            //let arrayBuffer;
+            //let fileReader = new FileReader();
+            //fileReader.onload = function(event) {
+              //arrayBuffer = event.target.result;
+            //};
+            //fileReader.readAsArrayBuffer(fileObject);
+            JSZip.loadAsync(fileObject).then(function (zip) {
+              const numberOfCallbacks = Object.keys(zip.files).length;
+              let counter = 0;
+              const promises = [];
+              Object.keys(zip.files).forEach(function (filename) {
+                zip.files[filename].async('blob').then(function (blob) {
+                  let fileData = new File([blob], (/[^/]*$/.exec(filename)[0]));
+                  let response = new Response(fileData)
+                  if (fileData.name === "hchl_channel.png" || fileData.name === "hchl_channel.gif") {
+                    storeChannel("hchl_"+cache_name,fileData)
+                  }
+                  caches.open(cache_name).then((cache) => {
+                    cache
+                      .put("/"+filename,response)
+                      .then(() => console.log("Data added to cache."))
+                      .catch((error) => console.error("Error adding data to cache:", error));
+                  });
+                  counter++
+                  if (counter === numberOfCallbacks) {
+                    alert("done")
+                    //loadHTML()
+                  }
+                })
+              })
+            }
     }
 
     function storeChannel(key,file) {
