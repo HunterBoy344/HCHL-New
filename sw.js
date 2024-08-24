@@ -41,7 +41,7 @@ addEventListener("message", (event) => {
     if (event.data.type === "cachechange") {
       current_cache = event.data.cachename
       if (current_cache !== "pwa-assets") {
-        event.source.navigate("index.html")
+        event.source.postMessage("reload the damn page");
       }
     }
   }
