@@ -151,7 +151,7 @@
     }*/
 
     async function putFilesFromHandle(dirHandle,path) {
-      let cache_name = mainDirHandle.name
+      let cache_name = "channel_" + mainDirHandle.name
       for await(let handle of dirHandle.values()){
         if (handle.kind === "file") {
           let fileData = await handle.getFile();
@@ -172,7 +172,7 @@
     }
 
     async function putFilesFromZip(fileObject) {
-            let cache_name = fileObject.name
+            let cache_name = "channel_" + fileObject.name
             //let fileObject = await file.getFile();
             //let arrayBuffer;
             //let fileReader = new FileReader();
