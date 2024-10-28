@@ -551,7 +551,7 @@
             caches.keys().then(function(names) {
               for (let name of names) {
                 console.log(name)
-                if (name !== "pwa-assets") {
+                if (name !== "pwa-assets" || !name.startsWith("channel_")) {
                   console.log("g")
                   //queryCache(name)
                   getCachedUrls(name).then((d) => {
@@ -565,12 +565,13 @@
                           // This code runs once the value has been loaded
                           // from the offline store.
                           channelURL = value
+			  let trueName = name.substring(8)
                           document.getElementById("channelmenu").innerHTML+=`<li><!-- make sure this link matches the ID of the popup you want to display --><a href="#${name}"><img src="${channelURL}" alt="empty CD wii menu placeholder" /></a></li>`
                       document.getElementById("main").innerHTML+=`<div id="${name}" class="content full">
                     <div class="container">
                         <header></header>
                         <div class="wii">
-                            ${name}
+                            ${trueName}
                         </div>
                         <div class="bottom">
                             <a href="#" class="button">
