@@ -551,7 +551,7 @@
             caches.keys().then(function(names) {
               for (let name of names) {
                 console.log(name)
-                if (name !== "pwa-assets" || !name.startsWith("channel_")) {
+                if (name !== "pwa-assets" && name.startsWith("channel_")) {
                   console.log("g")
                   //queryCache(name)
                   getCachedUrls(name).then((d) => {
