@@ -64,23 +64,19 @@ addEventListener("message", (event) => {
 });*/
 
 self.addEventListener('fetch', function(event) {
-  let returnValue
   event.respondWith(
     caches.open(current_cache).then(function(cache) {
       return cache.match(event.request, {'ignoreSearch': true}).then(function (response) {
         if (response !== undefined) {
-          return response
+          return response;
         } else {
           return caches.match(event.request, {'ignoreSearch': true}).then((response) => {
             // caches.match() always resolves
             // but in case of success response will have value
             if (response !== undefined) {
-              return response
+              return response;
             } else {
-              fetch(event.request).then(response =>{
-                // add headers to response if it no worky (this fixes webleste)
-                return addHeaders(response)
-              })
+              return fetch(event.request);
             }
           })
         }
@@ -88,17 +84,3 @@ self.addEventListener('fetch', function(event) {
     })
   );
 });
-
-function addHeaders(response) {
-  let newHeaders = new Headers(response.headers);
-  newHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
-  newHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
-
-  let moddedResponse = new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: newHeaders,
-  });
-
-  return moddedResponse;
-}
