@@ -5,18 +5,10 @@
     "display": "fullscreen",
     "background_color": "black",
     "description": "Run local HTML without the restrictions of the file:// view!",
-    "icons": [
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
+    "icons": [{
       "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-    ]
+    }]
   }
