@@ -15,11 +15,19 @@ let filesToCache = [
 ];
 caches.open("pwa-assets").then(cache => {
   return Promise.all(
-    filesToCache.map(url => {
-      return cache.add(new Request(url, { redirect: "follow" }));
-    })
+    filesToCache.map(url =>
+      fetch(new Request(url, { redirect: "follow" }))
+        .then(response => {
+          if (response.redirected) {
+            // we followed the redirect, so response.url is now “/old/”
+            // put it in the cache under its original key
+            return cache.put(url, response.clone());
+          }
+          return cache.put(url, response.clone());
+        })
+    )
   );
-});
+})
 
 self.addEventListener("install", (event) => {
   // The promise that skipWaiting() returns can be safely ignored.
