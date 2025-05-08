@@ -194,7 +194,13 @@
               Object.keys(zip.files).forEach(function (filename) {
                 zip.files[filename].async('blob').then(function (blob) {
                   let fileData = new File([blob], (/[^/]*$/.exec(filename)[0]));
-                  let response = new Response(fileData)
+                  const newHeaders = new Headers();
+                  newHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
+                  newHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
+
+                  let response = new Response(fileData, {
+                    headers: newHeaders
+                  });
                   if (fileData.name === "hchl_channel.png" || fileData.name === "hchl_channel.gif") {
                     storeChannel("hchl_"+cache_name,fileData)
                   }
