@@ -13,17 +13,11 @@ let filesToCache = [
     "/installer_channel.png",
     "/jszip.min.js"
 ];
-caches.open("pwa-assets").then(cache => {
-  return Promise.all(
-    filesToCache.map(url =>
-      fetch(new Request(url, { redirect: "follow" }))
-        .then(response => {
-          const cacheKey = response.redirected ? response.url : url;
-          return cache.put(cacheKey, response.clone());
-        })
-    )
-  );
+caches.open("pwa-assets")
+.then(cache => {
+  cache.addAll(filesToCache)
 });
+
 
 self.addEventListener("install", (event) => {
   // The promise that skipWaiting() returns can be safely ignored.
