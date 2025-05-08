@@ -13,9 +13,12 @@ let filesToCache = [
     "/installer_channel.png",
     "/jszip.min.js"
 ];
-caches.open("pwa-assets")
-.then(cache => {
-  cache.addAll(filesToCache)
+caches.open("pwa-assets").then(cache => {
+  return Promise.all(
+    filesToCache.map(url => {
+      return cache.add(new Request(url, { redirect: "follow" }));
+    })
+  );
 });
 
 self.addEventListener("install", (event) => {
